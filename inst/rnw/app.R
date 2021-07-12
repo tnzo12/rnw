@@ -415,16 +415,16 @@ server <- function(input, output, session) {
 
   # second tabs
   output$dv_ipred <- renderPlot({
-    ( xpose::dv_vs_ipred( xpdb() ))
+    ( dv_vs_ipred( xpdb() ))
   }, bg="transparent")
   output$dv_idv <- renderPlot({
-    ( xpose::dv_vs_idv( xpdb() ) )
+    ( dv_vs_idv( xpdb() ) )
   }, bg="transparent")
   output$res_idv <- renderPlot({
-    ( xpose::res_vs_idv( xpdb() ) )
+    ( res_vs_idv( xpdb() ) )
   }, bg="transparent")
   output$ind_plots <- renderPlot({
-    ( xpose::ind_plots(
+    ( ind_plots(
       xpdb(), page = input$ind_page,
       ncol=1, nrow=6,
       color = c("grey60", "#FF6666", "#66CCCC"),
@@ -433,17 +433,17 @@ server <- function(input, output, session) {
   }, bg="transparent")
   output$vpc <- renderPlot({
     xpdb_mod() %>%
-      xpose::vpc_data(psn_folder = paste0( dir(),'/',"vpc_",mod_selected() ) ) %>%
-      xpose::vpc(area_fill = c("#66CCCC", "#FF6666", "#66CCCC"),
+      vpc_data(psn_folder = paste0( dir(),'/',"vpc_",mod_selected() ) ) %>%
+      vpc(area_fill = c("#66CCCC", "#FF6666", "#66CCCC"),
           line_linetype = c("twodash", "solid", "twodash"))
   }, bg="transparent")
 
   # third tabs
   output$prm_iter <- renderPlot({
-    ( xpose::prm_vs_iteration( xpdb() ) )
+    ( prm_vs_iteration( xpdb() ) )
   }, bg="transparent")
   output$grd_iter <- renderPlot({
-    ( xpose::grd_vs_iteration( xpdb() ) )
+    ( grd_vs_iteration( xpdb() ) )
   }, bg="transparent")
 
 
