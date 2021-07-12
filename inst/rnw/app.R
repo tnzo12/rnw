@@ -433,8 +433,8 @@ server <- function(input, output, session) {
   }, bg="transparent")
   output$vpc <- renderPlot({
     xpdb_mod() %>%
-      vpc_data(psn_folder = paste0( dir(),'/',"vpc_",mod_selected() ) ) %>%
-      vpc(area_fill = c("#66CCCC", "#FF6666", "#66CCCC"),
+      xpose::vpc_data(psn_folder = paste0( dir(),'/',"vpc_",mod_selected() ) ) %>%
+      xpose::vpc(area_fill = c("#66CCCC", "#FF6666", "#66CCCC"),
           line_linetype = c("twodash", "solid", "twodash"))
   }, bg="transparent")
 
