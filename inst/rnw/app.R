@@ -147,16 +147,16 @@ server <- function(input, output, session) {
     xpose::xpose_data(file = paste0(dir(),'/',mod_selected(),".lst"), quiet=TRUE ) %>%
       xpose::update_themes(
         gg_theme = ggplot2::theme(legend.position='bottom',
-                         plot.background = element_blank(),
-                         legend.background = element_blank(),
-                         panel.background = element_blank(),
-                         panel.grid.major = element_line(colour='grey60', size=0.1),
-                         panel.grid.minor = element_line(colour='grey60', size=0.1),
-                         text = element_text(colour='grey60'),
-                         axis.text = element_text(colour='grey60'),
-                         axis.ticks = element_line(colour='grey60', size=0.1),
-                         strip.background = element_blank(),
-                         strip.text = element_text(colour = 'grey60')
+                         plot.background = ggplot2::element_blank(),
+                         legend.background = ggplot2::element_blank(),
+                         panel.background = ggplot2::element_blank(),
+                         panel.grid.major = ggplot2::element_line(colour='grey60', size=0.1),
+                         panel.grid.minor = ggplot2::element_line(colour='grey60', size=0.1),
+                         text = ggplot2::element_text(colour='grey60'),
+                         axis.text = ggplot2::element_text(colour='grey60'),
+                         axis.ticks = ggplot2::element_line(colour='grey60', size=0.1),
+                         strip.background = ggplot2::element_blank(),
+                         strip.text = ggplot2::element_text(colour = 'grey60')
         ),
         xp_theme = list(point_color = '#999999', point_alpha = 0.7,
                         line_color  = '#999999', line_alpha = 0.7,
@@ -167,16 +167,16 @@ server <- function(input, output, session) {
     xpose::xpose_data(file = paste0(dir(),'/',mod_selected(),".mod"), quiet=TRUE ) %>%
       xpose::update_themes(
         gg_theme = ggplot2::theme(legend.position='bottom',
-                         plot.background = element_blank(),
-                         legend.background = element_blank(),
-                         panel.background = element_blank(),
-                         panel.grid.major = element_line(colour='grey60', size=0.1),
-                         panel.grid.minor = element_line(colour='grey60', size=0.1),
-                         text = element_text(colour='grey60'),
-                         axis.text = element_text(colour='grey60'),
-                         axis.ticks = element_line(colour='grey60', size=0.1),
-                         strip.background = element_blank(),
-                         strip.text = element_text(colour = 'grey60')
+                         plot.background = ggplot2::element_blank(),
+                         legend.background = ggplot2::element_blank(),
+                         panel.background = ggplot2::element_blank(),
+                         panel.grid.major = ggplot2::element_line(colour='grey60', size=0.1),
+                         panel.grid.minor = ggplot2::element_line(colour='grey60', size=0.1),
+                         text = ggplot2::element_text(colour='grey60'),
+                         axis.text = ggplot2::element_text(colour='grey60'),
+                         axis.ticks = ggplot2::element_line(colour='grey60', size=0.1),
+                         strip.background = ggplot2::element_blank(),
+                         strip.text = ggplot2::element_text(colour = 'grey60')
         ),
         xp_theme = list(point_color = '#999999', point_alpha = 0.4, area_alpha = 0.4,
                         line_color  = '#999999', line_alpha = 0.9,
