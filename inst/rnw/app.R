@@ -177,27 +177,27 @@ server <- function(input, output, session) {
 
   # first tabs
   output$prm_dist <- renderPlot({
-    ( xpose::prm_distrib( xpdb() ) )
+    ( xpose::as.xpose.plot(xpose::prm_distrib( xpdb() )) )
   }, bg="transparent")
   output$eta_dist <- renderPlot({
-    ( xpose::eta_distrib( xpdb() ) )
+    ( xpose::as.xpose.plot(xpose::eta_distrib( xpdb() )) )
   }, bg="transparent")
   output$prm_qq <- renderPlot({
-    ( xpose::prm_qq( xpdb() ) )
+    ( xpose::as.xpose.plot(xpose::prm_qq( xpdb() )) )
   }, bg="transparent")
   output$eta_qq <- renderPlot({
-    ( xpose::eta_qq( xpdb() ) )
+    ( xpose::as.xpose.plot(xpose::eta_qq( xpdb() )) )
   }, bg="transparent")
 
   # second tabs
   output$dv_ipred <- renderPlot({
-    ( xpose::dv_vs_ipred( xpdb() ))
+    ( xpose::as.xpose.plot(xpose::dv_vs_ipred( xpdb() )) )
   }, bg="transparent")
   output$dv_idv <- renderPlot({
-    ( xpose::dv_vs_idv( xpdb() ) )
+    ( xpose::as.xpose.plot(xpose::dv_vs_idv( xpdb() )) )
   }, bg="transparent")
   output$res_idv <- renderPlot({
-    ( xpose::res_vs_idv( xpdb() ) )
+    ( xpose::as.xpose.plot(xpose::res_vs_idv( xpdb() )) )
   }, bg="transparent")
   output$ind_plots <- renderPlot({
     ( xpose::ind_plots(
@@ -216,10 +216,10 @@ server <- function(input, output, session) {
 
   # third tabs
   output$prm_iter <- renderPlot({
-    ( xpose::prm_vs_iteration( xpdb() ) )
+    ( xpose::as.xpose.plot(xpose::prm_vs_iteration( xpdb() )) )
   }, bg="transparent")
   output$grd_iter <- renderPlot({
-    ( xpose::grd_vs_iteration( xpdb() ) )
+    ( xpose::as.xpose.plot(xpose::grd_vs_iteration( xpdb() )) )
   }, bg="transparent")
 
 
