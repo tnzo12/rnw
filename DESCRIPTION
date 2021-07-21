@@ -8,8 +8,7 @@ Authors@R:
            email = "first.last@example.com",
            comment = c(ORCID = "0000-0001-7806-597X"))
 Description: This package helps nonmem run mangement and data visualization
-License: `use_mit_license()`, `use_gpl3_license()` or friends to
-    pick a license
+License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
