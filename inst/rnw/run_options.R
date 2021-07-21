@@ -4,33 +4,33 @@
 run_options_ui <- function(id){
   ns <- NS(id)
   tagList( # two widgets = picker, text input
-  
+
     shinyWidgets::pickerInput(
       inputId = ns('method'),
       label = "run options",
       choices = list(
-        
+
         execute = c("execute"),
         model_diagnostics = c("vpc","npc","bootstrap","cdd","llp","sir","ebe_npde"),
         design_evaluation = c("sse"),
         covariates = c("scm","xv_scm","boot_scm","lasso"),
         misc = c("nca","nonpb","mimp","gls","parallel_retries","precond","psn_clean","update_inits")
-        
+
       )
     ),
     shiny::textAreaInput(ns("cmd"), label="command input", resize="vertical", rows=5),
     shiny::actionButton(ns("run"), "run selected model")
-    
-      
+
+
   )
-  
-  
+
+
 }
 
 run_options_server <- function(id, dir, mod_selected){
-  
+
   moduleServer(id, function(input, output, session) {
-    
+
     # run options
     shiny::observe({
       updateTextInput(
@@ -63,14 +63,14 @@ run_options_server <- function(id, dir, mod_selected){
         )
       )
     })
-    
+
     # Button action
     observeEvent(input$run,{
-      rstudioapi::terminalExecute(input$cmd)
+      rstudioapi::terminalExecute(input$cmd, workingDir = dir())
     })
-    
-    
+
+
   })
-    
-  
+
+
 }
