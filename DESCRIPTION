@@ -24,8 +24,7 @@ Imports:
     shinyFiles,
     shinyWidgets,
     ggplot2,
-    htmltools,
-    magrittr
+    htmltools
 Suggests: 
     knitr,
     rmarkdown

@@ -88,8 +88,9 @@ server <- function(input, output, session) {
 
 
   xpdb <- shiny::reactive({
-    xpose::xpose_data(file = paste0(dir(),'/',mod_selected(),".lst"), quiet=TRUE ) %>%
+    db <- xpose::xpose_data(file = paste0(dir(),'/',mod_selected(),".lst"), quiet=TRUE )
       xpose::update_themes(
+        db,
         gg_theme = ggplot2::theme(legend.position='bottom',
                          plot.background = ggplot2::element_blank(),
                          legend.background = ggplot2::element_blank(),
@@ -108,8 +109,9 @@ server <- function(input, output, session) {
       )
   })
   xpdb_mod <- shiny::reactive({
-    xpose::xpose_data(file = paste0(dir(),'/',mod_selected(),".mod"), quiet=TRUE ) %>%
+    db <- xpose::xpose_data(file = paste0(dir(),'/',mod_selected(),".mod"), quiet=TRUE )
       xpose::update_themes(
+        db,
         gg_theme = ggplot2::theme(legend.position='bottom',
                          plot.background = ggplot2::element_blank(),
                          legend.background = ggplot2::element_blank(),
@@ -206,10 +208,10 @@ server <- function(input, output, session) {
     ) )
   }, bg="transparent")
   output$vpc <- renderPlot({
-    xpdb_mod() %>%
-      xpose::vpc_data(psn_folder = paste0( dir(),'/',"vpc_",mod_selected() ) ) %>%
-      xpose::vpc(area_fill = c("#66CCCC", "#FF6666", "#66CCCC"),
-          line_linetype = c("twodash", "solid", "twodash"))
+    vpc_dat <- xpose::vpc_data(xpdb_mod(), psn_folder = paste0( dir(),'/',"vpc_",mod_selected() ) )
+    vpc <- xpose::vpc(vpc_dat, area_fill = c("#66CCCC", "#FF6666", "#66CCCC"),
+                      line_linetype = c("twodash", "solid", "twodash"))
+    vpc
   }, bg="transparent")
 
   # third tabs
