@@ -107,7 +107,6 @@ server <- function(input, output, session) {
                         line_color  = '#999999', line_alpha = 0.7,
                         smooth_color = "#FF6666")
       )
-    db
   })
   xpdb_mod <- shiny::reactive({
     db <- xpose::xpose_data(file = paste0(dir(),'/',mod_selected(),".mod"), quiet=TRUE )
@@ -129,7 +128,6 @@ server <- function(input, output, session) {
                         line_color  = '#999999', line_alpha = 0.9,
                         smooth_color = "#FF6666")
       )
-    db
   })
 
   # Directory text output
