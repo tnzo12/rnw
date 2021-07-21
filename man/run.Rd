@@ -7,5 +7,5 @@
 run()
 }
 \description{
-This function initiates the workbench on browser/viewer in rstudio
+This function initiates the workbench on viewer in rstudio
 }

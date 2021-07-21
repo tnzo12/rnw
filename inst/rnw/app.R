@@ -1,45 +1,10 @@
-options(reactable.theme = reactable::reactableTheme(
-  backgroundColor = "transparent",
-  inputStyle = list(backgroundColor = "transparent"),
-  pageButtonHoverStyle = list(backgroundColor = "hsl(233, 9%, 25%)"),
-  pageButtonActiveStyle = list(backgroundColor = "hsl(233, 9%, 28%)")
-))
+# module files
+source("run_options.R")
+source("summary_tbl.R")
+source("param_tbl.R")
+source("terminal_mg.R")
+source("reactable_setting.R")
 
-bar_chart_pos_neg <- function(label, value, max_value = 1, height = "16px",
-                              pos_fill = "#FF6666", neg_fill = "#66CCCC") {
-  neg_chart <- htmltools::div(style = list(flex = "1 1 0"))
-  pos_chart <- htmltools::div(style = list(flex = "1 1 0"))
-  width <- paste0(abs(value / max_value) * 100, "%")
-
-  if (value < 0) {
-    bar <- htmltools::div(style = list(marginLeft = "8px", background = neg_fill, width = width, height = height))
-    chart <- htmltools::div(style = list(display = "flex", alignItems = "center", justifyContent = "flex-end"), label, bar)
-    neg_chart <- tagAppendChild(neg_chart, chart)
-  } else {
-    bar <- htmltools::div(style = list(marginRight = "8px", background = pos_fill, width = width, height = height))
-    chart <- htmltools::div(style = list(display = "flex", alignItems = "center"), bar, label)
-    pos_chart <- tagAppendChild(pos_chart, chart)
-  }
-
-  htmltools::div(style = list(display = "flex"), neg_chart, pos_chart)
-}
-
-sum_table_value <- c("Run description",
-                     'Reference model',
-                     'Input data',
-                     'Run start time',
-                     'Estimation runtime',
-                     'Estimation method',
-                     'Number of individuals',
-                     'Number of observations',
-                     'Objective function value',
-                     'Termination message')
-
-reactable_theme <- reactable::reactableTheme(
-  backgroundColor = 'transparent',
-  borderColor = 'rgba(102,102,102,0.15)',
-  borderWidth = '1px'
-)
 
 # UI side =====================================================================
 ui <- bs4Dash::dashboardPage(
@@ -50,12 +15,12 @@ ui <- bs4Dash::dashboardPage(
     shiny::htmlOutput("dir_cur")
   ),
   controlbar = bs4Dash::dashboardControlbar(
-    bs4Dash::sidebarUserPanel("doge_terminal_manager", image='http://i.imgur.com/RVXMPov.png'),
+    bs4Dash::sidebarUserPanel("doge_terminal_manager", image='https://i.pinimg.com/originals/57/48/78/574878084f4314776358d2e515dba613.png'),
     id = NULL,
     width = '450px',
     collapsed = TRUE,
     overlay = TRUE,
-    reactable::reactableOutput("terminals")
+    terminal_ui("terminals")
   ),
   bs4Dash::dashboardSidebar(
     bs4Dash::sidebarUserPanel("CNU_PM", image="https://res-3.cloudinary.com/crunchbase-production/image/upload/c_lpad,h_170,w_170,f_auto,b_white,q_auto:eco/oathengskxv2qsas7epw"),
@@ -67,41 +32,21 @@ ui <- bs4Dash::dashboardPage(
     ),
     reactable::reactableOutput("files_cur"),
     shiny::br(),
-    shinyWidgets::pickerInput(
-      inputId = "method",
-      label = "run options",
-      choices = list(
-
-        execute = c("execute"),
-        model_diagnostics = c("vpc","npc","bootstrap","cdd","llp","sir","ebe_npde"),
-        design_evaluation = c("sse"),
-        covariates = c("scm","xv_scm","boot_scm","lasso"),
-        misc = c("nca","nonpb","mimp","gls","parallel_retries","precond","psn_clean","update_inits")
-
-      )
-    ),
-    shiny::textAreaInput("cmd", label="command input", resize="vertical", rows=5),
-
-    shiny::actionButton("run", "run selected model"),
+    run_options_ui("method"),
     shiny::verbatimTextOutput('mod_selected')
-
-
-
-
   ),
   bs4Dash::dashboardBody(
-    # Boxes need to be put in a row (or column)
     shiny::fluidRow(
       bs4Dash::box(
         title = "model summary",
         width=5,
-        reactable::reactableOutput("summary")
+        summary_tbl_ui("summary")
       ),
       bs4Dash::tabBox(
         width=7,
         type="tabs",
         selected = 'est',
-        shiny::tabPanel("est", reactable::reactableOutput("params")),
+        shiny::tabPanel("est", param_tbl_ui("params")),
         shiny::tabPanel("prm_dist.", shiny::plotOutput('prm_dist')),
         shiny::tabPanel("q-q prm", shiny::plotOutput('prm_qq')),
         shiny::tabPanel("η_dist.", shiny::plotOutput('eta_dist')),
@@ -139,7 +84,6 @@ server <- function(input, output, session) {
   dir <- shiny::reactive(shinyFiles::parseDirPath(roots = c(home='~'), input$dir))
   mod_files <- shiny::reactive({ list.files(dir(), pattern='.mod', all.files=FALSE, full.names=FALSE, recursive=FALSE) })
   lst_files <- shiny::reactive({ list.files(dir(), pattern='.lst', all.files=FALSE, full.names=FALSE, recursive=FALSE) })
-
   mod_selected <- shiny::reactive({ gsub('.mod',"" , mod_files()[input$selected]) }) # getting rid of the selected model file's extension
 
 
@@ -193,47 +137,10 @@ server <- function(input, output, session) {
     if(isTruthy(dir()))
       message(dir())
   })
-  shiny::observe({
-    updateTextInput(
-      session, "cmd",
-      label = NULL,
-      value = switch(
-        input$method ,
-        "execute" = paste0("execute"," ",dir(),'/',mod_selected(),".mod"),
-        "vpc" = paste0("vpc"," ","-samples=200"," ","-auto_bin=auto"," ","-dir=vpc_",mod_selected()," ",dir(),'/',mod_selected(),".mod"),
-        "npc" = paste0("npc"," ","-samples=200"," ","-dir=npc_",mod_selected()," ",dir(),'/',mod_selected(),".mod"),
-        "bootstrap" = paste0("bootstrap"," ","-samples=50"," ","-threads=4"," ","-dir=bs_",mod_selected()," ",dir(),'/',mod_selected(),".mod"),
-        "cdd" = paste0("cdd"," ","-case_column=ID"," ","-bins=100"," ","-dir=cdd_",mod_selected()," ",dir(),'/',mod_selected(),".mod"),
-        "llp" = paste0("llp"," ","-omegas=''"," ","--sigmas=''"," ","--thetas=''"," ","-dir=lasso_",mod_selected()," ",dir(),'/',mod_selected(),".mod"),
-        "sir" = paste0("sir"," ","-samples=500"," ","-resamples=500"," ",dir(),'/',mod_selected(),".mod"),
-        "ebe_npde" = paste0("ebe_npde"," ","-dir=ebe_",mod_selected()," ",dir(),'/',mod_selected(),".mod"),
-        "sse" = paste0("sse"," ","-samples=500"," ","-dir=sse_",mod_selected()," ","-no-estimate-simulation"," ","-alt='run1.mod'"," ",dir(),'/',mod_selected(),".mod"),
-        #"mcmp" = paste0(),# not yet implemented
-        "scm" = paste0("scm"," ","-config_file=",mod_selected(),".scm"," ","-model="," ",dir(),'/',mod_selected(),".mod"),
-        "xv_scm" = paste0("xv_scm"," ","-config_file="," ","-model="," ",dir(),'/',mod_selected(),".mod"),
-        "boot_scm" = paste0("boot_scm"," ","-samples=100"," ","-threads=4"," ","-config_file="," ",dir(),'/',mod_selected(),".mod"),
-        "lasso" = paste0("lasso"," ","-dir=lasso_",mod_selected()," ",dir(),'/',mod_selected(),".mod"),
-        "nca" = paste0("nca"," ","-samples=500"," ","-columns=CL,V"," ",dir(),'/',mod_selected(),".mod"),
-        "nonpb" = paste0("nonpb"," ",dir(),'/',mod_selected(),".mod"),
-        "mimp" = paste0("mimp"," ","-dir=mimp_",mod_selected()," ",dir(),'/',mod_selected(),".mod"),
-        "gls" = paste0("gls"," ","-dir=gls_",mod_selected()," ",dir(),'/',mod_selected(),".mod"),
-        "parallel_retries" = paste0("parallel_retries"," ","-min_retries=4"," ","-threads=5"," ","-seed=12345"," ",dir(),'/',mod_selected(),".mod"),
-        "precond" = paste0("precond"," ",dir(),'/',mod_selected(),".mod"),
-        "psn_clean" = paste0("psn_clean"," ",dir(),'/',mod_selected(),".mod"),
-        "update_inits" = paste0("update_inits"," ",dir(),'/',mod_selected(),".mod"," ","-out=",mod_selected(),".mod")
-      )
-    )
-  })
-
-
-
-
-
 
 
 
   # show current files
-
   output$files_cur <- reactable::renderReactable({
     reactable::reactable(
       filterable = FALSE,
@@ -254,150 +161,17 @@ server <- function(input, output, session) {
 
   })
 
-  output$summary <- reactable::renderReactable({
-    sum_table <- data.frame(xpdb()$summary)[,c("descr",'value')]
-    sum_table <- sum_table[sum_table$descr %in% sum_table_value, ]
-    colnames(sum_table) <- c("description", "value")
-    reactable::reactable(
-      sum_table, compact = TRUE,
-      style = list(
-        fontSize = "12px",
-        verticalAlign = "center",
-        align = "left"
-      ),
-      theme = reactable_theme,
-      columns = list(
-        value  = reactable::colDef(
 
-          style = function(value) {
-            color <- if ( grepl(".csv", value) == TRUE) {
-              "#66CCCC"
-            } else if ( grepl("SUCCESSFUL", value) == TRUE ) {
-              "#66CC99"
-            } else if ( grepl("TERMINATED", value) == TRUE ) {
-              "#FF6666"
-            }
-            list(fontWeight=300, color = color)
-          }
+  # run options
+  run_options_server("method", dir, mod_selected)
+  # summary table
+  summary_tbl_server("summary", xpdb)
+  # terminal manager
+  terminal_server("terminals")
+  # parameter table
+  param_tbl_server("params", xpdb)
 
-        )
-      )
-    )
-  })
-  output$params <- reactable::renderReactable({
-    xp_sum <- data.frame(xpdb()$summary)
-    param_init <- data.frame(xpdb()$code)
-    param_init <- param_init[param_init$subroutine=='the'|param_init$subroutine=='ome'|param_init$subroutine=='sig',"code"]
-    param_init <- gsub(" ","",param_init) # remove space
-    param_init <- gsub("[()]","",param_init) # remove brackets
-    param_init <- strsplit(param_init, split=",")
-    param_init <- lapply(
 
-      param_init,
-      function(x){
-        if( length(x)==1 ){
-          x <- c(NA,x,NA)
-        }else{
-          if( length(x)==2){
-            x <- c(x,NA)
-          }else{
-            x
-          }
-        }
-      }
-
-    )
-    param_init <- t(data.frame(param_init))
-    param_init <- gsub("[^0-9.-]", "",param_init)
-    rownames(param_init) <- NULL
-    init <- param_init[,2]
-    lower <- param_init[,1]
-    upper <- param_init[,3]
-
-    param_table <- data.frame(get_prm(xpdb(), transform=FALSE), init, lower,upper)
-    param_table <- subset(param_table, select = -c(type,se,diagonal,m,n))
-
-    param_table$fixed <- toupper(param_table$fixed)
-    param_table$value <- as.numeric(as.character(param_table$value))
-    param_table$init <- as.numeric(as.character(param_table$init))
-    param_table$change <- (param_table$value - param_table$init)/param_table$init
-    param_table$change[is.nan(param_table$change)] <- 0
-    param_table$change[is.null(param_table$change)] <- 0
-    param_table$change[is.na(param_table$change)] <- 0
-
-    shrinkage <- unlist(c(strsplit(xp_sum[xp_sum$label=="etashk","value"], split = ","),
-                          strsplit(xp_sum[xp_sum$label=="epsshk","value"], split = ",")))
-    shrinkage <- gsub("\\[.*?\\]","", shrinkage)
-    shrinkage <- gsub(" ","", shrinkage)
-
-    param_table$shrinkage <- c(rep(NA,nrow(param_table)-length(shrinkage)), shrinkage)
-    param_table$shrinkage[is.na(param_table$shrinkage)] <- "-"
-    param_table$rse[is.na(param_table$rse)] <- " "
-    param_table$rse <- as.numeric(as.character(param_table$rse))
-
-    param_table$"value_( rse / shr )" <- paste0(param_table$value,
-                                                " ( ",round(param_table$rse*100,2),
-                                                " / ",param_table$shrinkage," )")
-    param_table$'label_(init)' <- paste0(param_table$label," ( ",param_table$init," )")
-
-    param_table_final <- param_table[,c("name","label_(init)","change","value_( rse / shr )")]
-    #param_table_final <- param_table_final[,c(1,2,4,3)]
-    reactable::reactable(
-      data = param_table_final, compact = TRUE,
-      rowStyle = function(index) {
-        if ( param_table[index, 'fixed']=='TRUE' ){ list(background = "rgba(0, 0, 0, 0.15)") }
-      },
-      defaultColDef = reactable::colDef(
-        align = "center",
-        minWidth = 100
-      ),
-      theme = reactable_theme,
-      columns = list(
-        change = reactable::colDef(
-          name = "change",
-          defaultSortOrder = "desc",
-          cell = function(value) {
-            label <- paste0(round(value * 100), "%")
-            bar_chart_pos_neg(label, value)
-          },
-          align = "center",
-          minWidth = 100
-        ),
-        'label_(init)' = reactable::colDef(
-          style = function(value) {
-            list(color = "#B3B3B3")
-          }
-        ),
-        name = reactable::colDef(
-
-          style = function(value) {
-            color <- if ( grepl("THETA", value) == TRUE) {
-              "#66CCCC"
-            } else if ( grepl("OMEGA", value) == TRUE ) {
-              "#66CC99"
-            } else {
-              "#FF6666"
-            }
-            list(fontWeight=500, color = color)
-          }
-
-        )
-      ),
-      fullWidth = TRUE,
-      style = list(
-        fontSize = "12px",
-        verticalAlign = "center",
-        align = "left"
-      ),
-      pagination = FALSE
-    )
-
-  })
-
-  # Button action
-  observeEvent(input$run,{
-    rstudioapi::terminalExecute(input$cmd)
-  })
 
   # first tabs
   output$prm_dist <- renderPlot({
@@ -424,7 +198,7 @@ server <- function(input, output, session) {
     ( res_vs_idv( xpdb() ) )
   }, bg="transparent")
   output$ind_plots <- renderPlot({
-    ( ind_plots(
+    ( xpose::ind_plots(
       xpdb(), page = input$ind_page,
       ncol=1, nrow=6,
       color = c("grey60", "#FF6666", "#66CCCC"),
@@ -446,99 +220,6 @@ server <- function(input, output, session) {
     ( grd_vs_iteration( xpdb() ) )
   }, bg="transparent")
 
-
-
-  terminal_ref <- shiny::reactivePoll(2000, session, function () Sys.time(), function () {
-    name = NULL
-    command = NULL
-    buffer = NULL
-    state = NULL
-    num_ter <- rstudioapi::terminalList()
-
-    for(i in 1:length(num_ter)){
-
-      ter_message <- tail( rstudioapi::terminalBuffer(num_ter[i], stripAnsi = TRUE),10 )
-
-      name[i]<- rstudioapi::terminalContext(num_ter[i])$caption
-      command[i] <- rstudioapi::terminalContext(num_ter[i])$title
-
-      buffer[i] <- if(any(grepl("OBJECTIVE VALUE", ter_message))==TRUE) {
-        ter_message[grepl("OBJECTIVE VALUE", ter_message)]
-      } else if ( !is.null(ter_message[length(ter_message)-1]) ) {
-        ter_message[length(ter_message)-1]
-      } else { NA }
-
-      state[i] <- if( (rstudioapi::terminalBusy(num_ter[i]))==1 ) {'running'} else { 'idle' }
-
-    }
-    df <- data.frame(name,command,buffer,state)
-    df
-  })
-
-  output$terminals <- reactable::renderReactable({
-
-
-    df <- terminal_ref()
-    reactable::reactable(
-      style = list(
-        fontSize = "12px",
-        verticalAlign = "center",
-        align = "left"
-      ),
-      df,
-      theme = reactable_theme,
-      rowStyle = function(index) {
-        if ( df[index, 'state']=='running' ){ list(background = "rgba(255,215,0, 0.1)") } else if (df[index, 'state']=='idle'){ list(background = "rgba(0,255,0, 0.1)") }
-      },
-      columns = list(
-        name = reactable::colDef(
-          align = "center",
-          minWidth = 50,
-          style = htmlwidgets::JS("function(rowInfo, colInfo, state) {
-      var firstSorted = state.sorted[0]
-      if (!firstSorted || firstSorted.id === 'name') {
-        var prevRow = state.pageRows[rowInfo.viewIndex - 1]
-        if (prevRow && rowInfo.row['name'] === prevRow['name']) {
-          return { visibility: 'hidden' }
-        }
-      }
-    }")
-
-        ),
-        command = reactable::colDef(
-          align = "center",
-          style = htmlwidgets::JS("function(rowInfo, colInfo, state) {
-      var firstSorted = state.sorted[0]
-      if (!firstSorted || firstSorted.id === 'command') {
-        var prevRow = state.pageRows[rowInfo.viewIndex - 1]
-        if (prevRow && rowInfo.row['command'] === prevRow['command']) {
-          return { visibility: 'hidden' }
-        }
-      }
-    }")
-
-        ),
-        state  = reactable::colDef(
-          align = "center",
-          style = function(value) {
-            color <- if (value == 'running') {
-              "rgba(250, 176, 32, 1)"
-            } else if ( value == 'idle' ) {
-              "rgba(94, 241, 2, 1)"
-            }
-            list(fontWeight=300, color = color)
-          }
-
-        )
-      ),
-
-    )
-
-
-
-
-
-  })
 
 }
 
