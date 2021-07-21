@@ -1,3 +1,16 @@
+library(shiny)
+library(dplyr)
+library(rstudioapi)
+library(bs4Dash)
+library(xpose)
+library(xpose4)
+library(reactable)
+library(shinyFiles)
+library(shinyWidgets)
+library(ggplot2)
+library(htmltools)
+library(magrittr)
+
 # module files
 source("run_options.R")
 source("summary_tbl.R")
@@ -89,45 +102,45 @@ server <- function(input, output, session) {
 
   xpdb <- shiny::reactive({
     db <- xpose::xpose_data(file = paste0(dir(),'/',mod_selected(),".lst"), quiet=TRUE )
-      xpose::update_themes(
-        db,
-        gg_theme = ggplot2::theme(legend.position='bottom',
-                         plot.background = ggplot2::element_blank(),
-                         legend.background = ggplot2::element_blank(),
-                         panel.background = ggplot2::element_blank(),
-                         panel.grid.major = ggplot2::element_line(colour='grey60', size=0.1),
-                         panel.grid.minor = ggplot2::element_line(colour='grey60', size=0.1),
-                         text = ggplot2::element_text(colour='grey60'),
-                         axis.text = ggplot2::element_text(colour='grey60'),
-                         axis.ticks = ggplot2::element_line(colour='grey60', size=0.1),
-                         strip.background = ggplot2::element_blank(),
-                         strip.text = ggplot2::element_text(colour = 'grey60')
-        ),
-        xp_theme = list(point_color = '#999999', point_alpha = 0.7,
-                        line_color  = '#999999', line_alpha = 0.7,
-                        smooth_color = "#FF6666")
-      )
+    xpose::update_themes(
+      db,
+      gg_theme = ggplot2::theme(legend.position='bottom',
+                                plot.background = ggplot2::element_blank(),
+                                legend.background = ggplot2::element_blank(),
+                                panel.background = ggplot2::element_blank(),
+                                panel.grid.major = ggplot2::element_line(colour='grey60', size=0.1),
+                                panel.grid.minor = ggplot2::element_line(colour='grey60', size=0.1),
+                                text = ggplot2::element_text(colour='grey60'),
+                                axis.text = ggplot2::element_text(colour='grey60'),
+                                axis.ticks = ggplot2::element_line(colour='grey60', size=0.1),
+                                strip.background = ggplot2::element_blank(),
+                                strip.text = ggplot2::element_text(colour = 'grey60')
+      ),
+      xp_theme = list(point_color = '#999999', point_alpha = 0.7,
+                      line_color  = '#999999', line_alpha = 0.7,
+                      smooth_color = "#FF6666")
+    )
   })
   xpdb_mod <- shiny::reactive({
     db <- xpose::xpose_data(file = paste0(dir(),'/',mod_selected(),".mod"), quiet=TRUE )
-      xpose::update_themes(
-        db,
-        gg_theme = ggplot2::theme(legend.position='bottom',
-                         plot.background = ggplot2::element_blank(),
-                         legend.background = ggplot2::element_blank(),
-                         panel.background = ggplot2::element_blank(),
-                         panel.grid.major = ggplot2::element_line(colour='grey60', size=0.1),
-                         panel.grid.minor = ggplot2::element_line(colour='grey60', size=0.1),
-                         text = ggplot2::element_text(colour='grey60'),
-                         axis.text = ggplot2::element_text(colour='grey60'),
-                         axis.ticks = ggplot2::element_line(colour='grey60', size=0.1),
-                         strip.background = ggplot2::element_blank(),
-                         strip.text = ggplot2::element_text(colour = 'grey60')
-        ),
-        xp_theme = list(point_color = '#999999', point_alpha = 0.4, area_alpha = 0.4,
-                        line_color  = '#999999', line_alpha = 0.9,
-                        smooth_color = "#FF6666")
-      )
+    xpose::update_themes(
+      db,
+      gg_theme = ggplot2::theme(legend.position='bottom',
+                                plot.background = ggplot2::element_blank(),
+                                legend.background = ggplot2::element_blank(),
+                                panel.background = ggplot2::element_blank(),
+                                panel.grid.major = ggplot2::element_line(colour='grey60', size=0.1),
+                                panel.grid.minor = ggplot2::element_line(colour='grey60', size=0.1),
+                                text = ggplot2::element_text(colour='grey60'),
+                                axis.text = ggplot2::element_text(colour='grey60'),
+                                axis.ticks = ggplot2::element_line(colour='grey60', size=0.1),
+                                strip.background = ggplot2::element_blank(),
+                                strip.text = ggplot2::element_text(colour = 'grey60')
+      ),
+      xp_theme = list(point_color = '#999999', point_alpha = 0.4, area_alpha = 0.4,
+                      line_color  = '#999999', line_alpha = 0.9,
+                      smooth_color = "#FF6666")
+    )
   })
 
   # Directory text output
@@ -140,8 +153,8 @@ server <- function(input, output, session) {
       message(dir())
   })
 
-
-
+  
+  
   # show current files
   output$files_cur <- reactable::renderReactable({
     reactable::reactable(
@@ -158,11 +171,11 @@ server <- function(input, output, session) {
         model_file = reactable::colDef(align = "left")
       ),
       theme = reactable_theme
-
+      
     )
-
+    
   })
-
+  
 
   # run options
   run_options_server("method", dir, mod_selected)
@@ -177,49 +190,49 @@ server <- function(input, output, session) {
 
   # first tabs
   output$prm_dist <- renderPlot({
-    ( xpose::as.xpose.plot(xpose::prm_distrib( xpdb() )) )
+    xpose::prm_distrib( xpdb() ) 
   }, bg="transparent")
   output$eta_dist <- renderPlot({
-    ( xpose::as.xpose.plot(xpose::eta_distrib( xpdb() )) )
+    xpose::eta_distrib( xpdb() ) 
   }, bg="transparent")
   output$prm_qq <- renderPlot({
-    ( xpose::as.xpose.plot(xpose::prm_qq( xpdb() )) )
+    xpose::prm_qq( xpdb() ) 
   }, bg="transparent")
   output$eta_qq <- renderPlot({
-    ( xpose::as.xpose.plot(xpose::eta_qq( xpdb() )) )
+    xpose::eta_qq( xpdb() ) 
   }, bg="transparent")
 
   # second tabs
   output$dv_ipred <- renderPlot({
-    ( xpose::as.xpose.plot(xpose::dv_vs_ipred( xpdb() )) )
+    dv_vs_ipred( xpdb() )
   }, bg="transparent")
   output$dv_idv <- renderPlot({
-    ( xpose::as.xpose.plot(xpose::dv_vs_idv( xpdb() )) )
+    dv_vs_idv( xpdb() ) 
   }, bg="transparent")
   output$res_idv <- renderPlot({
-    ( xpose::as.xpose.plot(xpose::res_vs_idv( xpdb() )) )
+    res_vs_idv( xpdb() ) 
   }, bg="transparent")
   output$ind_plots <- renderPlot({
-    ( xpose::ind_plots(
+    xpose::ind_plots(
       xpdb(), page = input$ind_page,
       ncol=1, nrow=6,
       color = c("grey60", "#FF6666", "#66CCCC"),
       line_linetype = c("blank", "solid", "twodash")
-    ) )
+    ) 
   }, bg="transparent")
   output$vpc <- renderPlot({
-    vpc_dat <- xpose::vpc_data(xpdb_mod(), psn_folder = paste0( dir(),'/',"vpc_",mod_selected() ) )
-    vpc <- xpose::vpc(vpc_dat, area_fill = c("#66CCCC", "#FF6666", "#66CCCC"),
-                      line_linetype = c("twodash", "solid", "twodash"))
-    vpc
+      vpc_dat <- xpose::vpc_data(xpdb_mod(), psn_folder = paste0( dir(),'/',"vpc_",mod_selected() ) )
+      vpc <- xpose::vpc(vpc_dat, area_fill = c("#66CCCC", "#FF6666", "#66CCCC"),
+          line_linetype = c("twodash", "solid", "twodash"))
+      vpc
   }, bg="transparent")
 
   # third tabs
   output$prm_iter <- renderPlot({
-    ( xpose::as.xpose.plot(xpose::prm_vs_iteration( xpdb() )) )
+    prm_vs_iteration( xpdb() ) 
   }, bg="transparent")
   output$grd_iter <- renderPlot({
-    ( xpose::as.xpose.plot(xpose::grd_vs_iteration( xpdb() )) )
+    grd_vs_iteration( xpdb() ) 
   }, bg="transparent")
 
 
