@@ -2,4 +2,10 @@
 
 export(rnw_gadget)
 export(run)
+import(ggplot2)
+import(htmltools)
+import(reactable)
+import(rstudioapi)
+import(shinyFiles)
+import(shinyWidgets)
 import(xpose)

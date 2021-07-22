@@ -48,7 +48,7 @@ ui <- bs4Dash::dashboardPage(
         shiny::tabPanel("est", param_tbl_ui("params")),
         shiny::tabPanel("prm_dist.", shiny::plotOutput('prm_dist')),
         shiny::tabPanel("q-q prm", shiny::plotOutput('prm_qq')),
-        shiny::tabPanel("η_dist.", shiny::plotOutput('eta_dist')),
+        shiny::tabPanel("eta_dist.", shiny::plotOutput('eta_dist')),
         shiny::tabPanel("q-q eta", shiny::plotOutput('eta_qq'))
       ),
       bs4Dash::tabBox(
