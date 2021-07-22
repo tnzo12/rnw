@@ -2,3 +2,4 @@
 
 export(rnw_gadget)
 export(run)
+import(xpose)
