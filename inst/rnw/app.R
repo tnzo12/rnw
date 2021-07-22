@@ -238,5 +238,16 @@ server <- function(input, output, session) {
 
 }
 
-shiny::runGadget( app=shiny::shinyApp(ui=ui, server=server), viewer = shiny::paneViewer() )
+shiny::runGadget( app=shiny::shinyApp(ui=ui, server=server), viewer = shiny::browserViewer() )
+
+# code for rstudio add-in
+rnw_gadget <- function() {
+  appDir <- system.file("rnw", package = "rnw")
+  
+  shiny::runApp(
+    appDir,
+    display.mode = "normal"
+  )
+}
+
 
