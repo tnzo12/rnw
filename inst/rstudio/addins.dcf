@@ -1,0 +1,4 @@
+Name: Run RNW
+Description: Rstudio gadget RNW.
+Binding: rnw_gadget
+Interactive: true
