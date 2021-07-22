@@ -1,3 +1,10 @@
+# module files
+source("run_options.R")
+source("summary_tbl.R")
+source("param_tbl.R")
+source("terminal_mg.R")
+source("reactable_setting.R")
+
 # UI side =====================================================================
 ui <- bs4Dash::dashboardPage(
   dark = TRUE,
