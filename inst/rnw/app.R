@@ -219,4 +219,15 @@ server <- function(input, output, session) {
 
 shiny::runGadget( app=shiny::shinyApp(ui=ui, server=server), viewer = shiny::paneViewer() )
 
+#' Run R-NONMEM Workbench
+#'
+#' Function for rstudio add-in
+#' @export
+rnw_gadget <- function() {
+  appDir <- system.file("rnw", package = "rnw")
 
+  shiny::runApp(
+    appDir,
+    display.mode = "normal"
+  )
+}
