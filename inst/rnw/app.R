@@ -1,24 +1,3 @@
-library(shiny)
-library(dplyr)
-library(rstudioapi)
-library(bs4Dash)
-library(xpose)
-library(xpose4)
-library(reactable)
-library(shinyFiles)
-library(shinyWidgets)
-library(ggplot2)
-library(htmltools)
-library(magrittr)
-
-# module files
-source("run_options.R")
-source("summary_tbl.R")
-source("param_tbl.R")
-source("terminal_mg.R")
-source("reactable_setting.R")
-
-
 # UI side =====================================================================
 ui <- bs4Dash::dashboardPage(
   dark = TRUE,
@@ -153,8 +132,8 @@ server <- function(input, output, session) {
       message(dir())
   })
 
-  
-  
+
+
   # show current files
   output$files_cur <- reactable::renderReactable({
     reactable::reactable(
@@ -171,11 +150,11 @@ server <- function(input, output, session) {
         model_file = reactable::colDef(align = "left")
       ),
       theme = reactable_theme
-      
+
     )
-    
+
   })
-  
+
 
   # run options
   run_options_server("method", dir, mod_selected)
@@ -190,16 +169,16 @@ server <- function(input, output, session) {
 
   # first tabs
   output$prm_dist <- renderPlot({
-    xpose::prm_distrib( xpdb() ) 
+    xpose::prm_distrib( xpdb() )
   }, bg="transparent")
   output$eta_dist <- renderPlot({
-    xpose::eta_distrib( xpdb() ) 
+    xpose::eta_distrib( xpdb() )
   }, bg="transparent")
   output$prm_qq <- renderPlot({
-    xpose::prm_qq( xpdb() ) 
+    xpose::prm_qq( xpdb() )
   }, bg="transparent")
   output$eta_qq <- renderPlot({
-    xpose::eta_qq( xpdb() ) 
+    xpose::eta_qq( xpdb() )
   }, bg="transparent")
 
   # second tabs
@@ -207,10 +186,10 @@ server <- function(input, output, session) {
     dv_vs_ipred( xpdb() )
   }, bg="transparent")
   output$dv_idv <- renderPlot({
-    dv_vs_idv( xpdb() ) 
+    dv_vs_idv( xpdb() )
   }, bg="transparent")
   output$res_idv <- renderPlot({
-    res_vs_idv( xpdb() ) 
+    res_vs_idv( xpdb() )
   }, bg="transparent")
   output$ind_plots <- renderPlot({
     xpose::ind_plots(
@@ -218,7 +197,7 @@ server <- function(input, output, session) {
       ncol=1, nrow=6,
       color = c("grey60", "#FF6666", "#66CCCC"),
       line_linetype = c("blank", "solid", "twodash")
-    ) 
+    )
   }, bg="transparent")
   output$vpc <- renderPlot({
       vpc_dat <- xpose::vpc_data(xpdb_mod(), psn_folder = paste0( dir(),'/',"vpc_",mod_selected() ) )
@@ -229,25 +208,15 @@ server <- function(input, output, session) {
 
   # third tabs
   output$prm_iter <- renderPlot({
-    prm_vs_iteration( xpdb() ) 
+    prm_vs_iteration( xpdb() )
   }, bg="transparent")
   output$grd_iter <- renderPlot({
-    grd_vs_iteration( xpdb() ) 
+    grd_vs_iteration( xpdb() )
   }, bg="transparent")
 
 
 }
 
-shiny::runGadget( app=shiny::shinyApp(ui=ui, server=server), viewer = shiny::browserViewer() )
-
-# code for rstudio add-in
-rnw_gadget <- function() {
-  appDir <- system.file("rnw", package = "rnw")
-  
-  shiny::runApp(
-    appDir,
-    display.mode = "normal"
-  )
-}
+shiny::runGadget( app=shiny::shinyApp(ui=ui, server=server), viewer = shiny::paneViewer() )
 
 
