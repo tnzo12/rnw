@@ -55,4 +55,3 @@ summary_tbl_server <- function(id, xpdb) {
     
   })
 }
-  

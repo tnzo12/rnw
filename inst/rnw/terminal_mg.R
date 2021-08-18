@@ -1,43 +1,43 @@
 # code for terminal manger
 terminal_ui <- function(id){
-
+  
   reactable::reactableOutput(NS(id, "terminals"))
-
+  
 }
 
 terminal_server <- function(id){
   moduleServer(id, function(input, output, session) {
-
+    
     terminal_ref <- shiny::reactivePoll(2000, session, function () Sys.time(), function () {
       name = NULL
       command = NULL
       buffer = NULL
       state = NULL
       num_ter <- rstudioapi::terminalList()
-
+      
       for(i in 1:length(num_ter)){
-
+        
         ter_message <- tail( rstudioapi::terminalBuffer(num_ter[i], stripAnsi = TRUE),10 )
-
+        
         name[i]<- rstudioapi::terminalContext(num_ter[i])$caption
         command[i] <- rstudioapi::terminalContext(num_ter[i])$title
-
+        
         buffer[i] <- if(any(grepl("OBJECTIVE VALUE", ter_message))==TRUE) {
           ter_message[grepl("OBJECTIVE VALUE", ter_message)]
         } else if ( !is.null(ter_message[length(ter_message)-1]) ) {
           ter_message[length(ter_message)-1]
         } else { NA }
-
+        
         state[i] <- if( (rstudioapi::terminalBusy(num_ter[i]))==1 ) {'running'} else { 'idle' }
-
+        
       }
       df <- data.frame(name,command,buffer,state)
       df
     })
-
+    
     output$terminals <- reactable::renderReactable({
-
-
+      
+      
       df <- terminal_ref()
       reactable::reactable(
         style = list(
@@ -86,14 +86,14 @@ terminal_server <- function(id){
               }
               list(fontWeight=300, color = color)
             }
-
+            
           )
         ),
-
+        
       )
-
+      
     })
-
+    
   })
-
+  
 }

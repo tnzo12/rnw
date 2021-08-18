@@ -32,6 +32,7 @@ param_tbl_server <- function(id, xpdb){
         }
         
       )
+      param_init <- param_init[unlist(lapply(param_init, function(x){length(x)==3}))] # extract list elements with length 3 (lower, init, upper)
       param_init <- t(data.frame(param_init))
       param_init <- gsub("[^0-9.-]", "",param_init)
       rownames(param_init) <- NULL
@@ -60,12 +61,12 @@ param_tbl_server <- function(id, xpdb){
       param_table$rse[is.na(param_table$rse)] <- " "
       param_table$rse <- as.numeric(as.character(param_table$rse))
       
-      param_table$"value_( rse / shr )" <- paste0(param_table$value,
+      param_table$"value_( rse/shr )" <- paste0(param_table$value,
                                                   " ( ",round(param_table$rse*100,2),
                                                   " / ",param_table$shrinkage," )")
       param_table$'label_(init)' <- paste0(param_table$label," ( ",param_table$init," )")
       
-      param_table_final <- param_table[,c("name","label_(init)","change","value_( rse / shr )")]
+      param_table_final <- param_table[,c("name","label_(init)","change","value_( rse/shr )")]
       #param_table_final <- param_table_final[,c(1,2,4,3)]
       reactable::reactable(
         data = param_table_final, compact = TRUE,

@@ -17,7 +17,7 @@ ui <- bs4Dash::dashboardPage(
     bs4Dash::sidebarUserPanel("doge_terminal_manager", image='https://i.pinimg.com/originals/57/48/78/574878084f4314776358d2e515dba613.png'),
     id = NULL,
     width = '450px',
-    collapsed = TRUE,
+    collapsed = FALSE,
     overlay = TRUE,
     terminal_ui("terminals")
   ),
@@ -38,11 +38,13 @@ ui <- bs4Dash::dashboardPage(
     shiny::fluidRow(
       bs4Dash::box(
         title = "model summary",
-        width=5,
+        width=12,
+        elevation = 2,
         summary_tbl_ui("summary")
       ),
       bs4Dash::tabBox(
-        width=7,
+        width=12,
+        elevation = 2,
         type="tabs",
         selected = 'est',
         shiny::tabPanel("est", param_tbl_ui("params")),
@@ -53,19 +55,41 @@ ui <- bs4Dash::dashboardPage(
       ),
       bs4Dash::tabBox(
         width=12,
+        elevation = 2,
         type="tabs",
         selected = "dv-ipred",
+        shiny::tabPanel("dv-pred", shiny::plotOutput('dv_pred')),
         shiny::tabPanel("dv-ipred", shiny::plotOutput('dv_ipred')),
-        shiny::tabPanel("dv-idv", shiny::plotOutput('dv_idv')),
-        shiny::tabPanel("cwres-idv", shiny::plotOutput('res_idv')),
-        shiny::tabPanel("individual_plots", shiny::plotOutput('ind_plots', height = '1200px'), shiny::numericInput('ind_page', "go to page", value=1)),
-        shiny::tabPanel("vpc", shiny::plotOutput('vpc'))
+        shiny::tabPanel("iwres-pred", shiny::plotOutput('iwres_pred')),
+        shiny::tabPanel("cwres-idv", shiny::plotOutput('cwres_idv')),
+        shiny::tabPanel("individual_plots",
+                        splitLayout(cellWidths = c("33%","33%","33%"),
+                                    shiny::numericInput('ind_cols', "columns", value=2, width="100%"),
+                                    shiny::numericInput('ind_rows', "rows", value=8, width="100%"),
+                                    shiny::numericInput('ind_page', "go to page", value=1)
+                                    ),
+                        shiny::plotOutput('ind_plots', height = '1200px')),
+        shiny::tabPanel("vpc",
+                        shinyWidgets::checkboxGroupButtons(
+                          inputId = "vpc_opt",
+                          justified = TRUE,
+                          individual = TRUE,
+                          width = '100%',
+                          choices = c("log x scale"="x", 
+                                      "log y scale"="y"),
+                          checkIcon = list(
+                            yes = tags$i(class = "fa fa-circle", 
+                                         style = "color: steelblue"),
+                            no = tags$i(class = "fa fa-circle-o", 
+                                        style = "color: steelblue"))
+                        ),
+                        shiny::plotOutput('vpc'))
       ),
       bs4Dash::tabBox(
         width = 12,
+        elevation = 2,
         type="tabs",
-        shiny::tabPanel("param_iter", shiny::plotOutput('prm_iter')),
-        shiny::tabPanel("gradient_iter", shiny::plotOutput('grd_iter'))
+        shiny::tabPanel("param_iter", shiny::plotOutput('prm_iter'))
       )
     )
   )
@@ -73,19 +97,19 @@ ui <- bs4Dash::dashboardPage(
 
 # Server side =================================================================
 server <- function(input, output, session) {
-
+  
   # Shiny files widget
   shinyFiles::shinyDirChoose(input=input,
-                 id='dir',
-                 roots = c(home='~'))
-
+                             id='dir',
+                             roots = c(home='~'))
+  
   # Directory management
   dir <- shiny::reactive(shinyFiles::parseDirPath(roots = c(home='~'), input$dir))
   mod_files <- shiny::reactive({ list.files(dir(), pattern='.mod', all.files=FALSE, full.names=FALSE, recursive=FALSE) })
   lst_files <- shiny::reactive({ list.files(dir(), pattern='.lst', all.files=FALSE, full.names=FALSE, recursive=FALSE) })
   mod_selected <- shiny::reactive({ gsub('.mod',"" , mod_files()[input$selected]) }) # getting rid of the selected model file's extension
-
-
+  
+  
   xpdb <- shiny::reactive({
     db <- xpose::xpose_data(file = paste0(dir(),'/',mod_selected(),".lst"), quiet=TRUE )
     xpose::update_themes(
@@ -128,7 +152,7 @@ server <- function(input, output, session) {
                       smooth_color = "#FF6666")
     )
   })
-
+  
   # Directory text output
   output$dir_cur <- shiny::renderText({
     mod_files()[input$selected]
@@ -138,9 +162,9 @@ server <- function(input, output, session) {
     if(isTruthy(dir()))
       message(dir())
   })
-
-
-
+  
+  
+  
   # show current files
   output$files_cur <- reactable::renderReactable({
     reactable::reactable(
@@ -157,12 +181,12 @@ server <- function(input, output, session) {
         model_file = reactable::colDef(align = "left")
       ),
       theme = reactable_theme
-
+      
     )
-
+    
   })
-
-
+  
+  
   # run options
   run_options_server("method", dir, mod_selected)
   # summary table
@@ -171,9 +195,9 @@ server <- function(input, output, session) {
   terminal_server("terminals")
   # parameter table
   param_tbl_server("params", xpdb)
-
-
-
+  
+  
+  
   # first tabs
   output$prm_dist <- renderPlot({
     xpose::prm_distrib( xpdb() )
@@ -187,43 +211,46 @@ server <- function(input, output, session) {
   output$eta_qq <- renderPlot({
     xpose::eta_qq( xpdb() )
   }, bg="transparent")
-
+  
   # second tabs
+  # dependent variable - population prediction
+  output$dv_pred <- renderPlot({
+    dv_vs_pred( xpdb() )
+  }, bg="transparent")
+  # dependent variable - individual population prediction
   output$dv_ipred <- renderPlot({
     dv_vs_ipred( xpdb() )
   }, bg="transparent")
-  output$dv_idv <- renderPlot({
-    dv_vs_idv( xpdb() )
+  # individual weighted residuals - individual population prediction
+  output$iwres_pred <- renderPlot({
+    absval_res_vs_pred( xpdb(), res="IWRES" )
   }, bg="transparent")
-  output$res_idv <- renderPlot({
-    res_vs_idv( xpdb() )
+  # conditional weighted residuals - individual population prediction
+  output$cwres_idv <- renderPlot({
+    res_vs_idv( xpdb(), res="CWRES" )
   }, bg="transparent")
+  
   output$ind_plots <- renderPlot({
     xpose::ind_plots(
       xpdb(), page = input$ind_page,
-      ncol=1, nrow=6,
+      ncol=input$ind_cols, nrow=input$ind_rows,
       color = c("grey60", "#FF6666", "#66CCCC"),
       line_linetype = c("blank", "solid", "twodash")
     )
   }, bg="transparent")
   output$vpc <- renderPlot({
-      vpc_dat <- xpose::vpc_data(xpdb_mod(), psn_folder = paste0( dir(),'/',"vpc_",mod_selected() ) )
-      vpc <- xpose::vpc(vpc_dat, area_fill = c("#66CCCC", "#FF6666", "#66CCCC"),
-          line_linetype = c("twodash", "solid", "twodash"))
-      vpc
+    vpc_dat <- xpose::vpc_data(xpdb_mod(), psn_folder = paste0( dir(),'/',"vpc_",mod_selected() ) )
+    vpc <- xpose::vpc(vpc_dat, area_fill = c("#66CCCC", "#FF6666", "#66CCCC"),
+                      line_linetype = c("twodash", "solid", "twodash"),
+                      log = paste(input$vpc_opt, collapse = " ")
+                      )
+    vpc
   }, bg="transparent")
-
+  
   # third tabs
   output$prm_iter <- renderPlot({
     prm_vs_iteration( xpdb() )
   }, bg="transparent")
-  output$grd_iter <- renderPlot({
-    grd_vs_iteration( xpdb() )
-  }, bg="transparent")
-
-
 }
 
 shiny::runGadget( app=shiny::shinyApp(ui=ui, server=server), viewer = shiny::paneViewer() )
-
-
