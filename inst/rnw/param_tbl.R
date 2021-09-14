@@ -62,7 +62,7 @@ param_tbl_server <- function(id, xpdb){
       param_table$rse <- as.numeric(as.character(param_table$rse))
       
       param_table$"value_( rse/shr )" <- paste0(param_table$value,
-                                                  " ( ",round(param_table$rse*100,2),
+                                                  " ( ",round(param_table$rse,2),
                                                   " / ",param_table$shrinkage," )")
       param_table$'label_(init)' <- paste0(param_table$label," ( ",param_table$init," )")
       
