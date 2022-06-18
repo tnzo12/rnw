@@ -1,11 +1,11 @@
 Package: rnw
 Title: R NONMEM Workbench
-Version: 0.0.1
+Version: 0.9.0
 Authors@R: 
     person(given = "Woojin",
            family = "Jung",
            role = c("aut", "cre"),
-           email = "first.last@example.com",
+           email = "tnzo12@hotmail.com",
            comment = c(ORCID = "0000-0001-7806-597X"))
 Description: This package helps nonmem run mangement and data visualization.
 License: GPL (>= 3)
@@ -16,7 +16,8 @@ RoxygenNote: 7.1.2
 Depends:
     xpose,
     xpose4,
-    ncappc
+    ncappc,
+    dplyr
 Imports: 
     shiny,
     dplyr,
