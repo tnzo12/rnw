@@ -23,7 +23,9 @@ ui <- bs4Dash::dashboardPage(
     skin = ifelse(rstudioapi::getThemeInfo()$dark, # read theme of rstudio
                   'dark',
                   'light'),
-    status = NULL,
+    status = ifelse(rstudioapi::getThemeInfo()$dark, # read theme of rstudio
+                    'dark',
+                    'white'),
     compact = TRUE,
     fixed = TRUE,
     shinyFiles::shinyDirButton(
