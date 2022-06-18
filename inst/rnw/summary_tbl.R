@@ -13,21 +13,25 @@ sum_table_value <- c("Run description",
                      'Termination message')
 
 
-summary_tbl_ui <- function(id) {
+summary_tbl_server <- function(id, lst_df, mod_code, mod_selected) {
   
-  reactable::reactableOutput(NS(id,"summary"))
-}
+  shiny::moduleServer(id, function(input, output, session) {
 
-summary_tbl_server <- function(id, xpdb) {
-  
-  moduleServer(id, function(input, output, session) {
-    
-    output$summary <- reactable::renderReactable({
-      sum_table <- data.frame(xpdb()$summary)[,c("descr",'value')]
+    summary_tbl <- shiny::reactive({
+      lst_df <- lst_df()
+      mod_code <- mod_code()
+      mod_selected <- mod_selected()
+      
+      sum <- summarise_nm_model(file=paste0(dir(),'/',mod_selected(),".lst"), model=mod_code, software="nonmem", rounding=3)
+      
+      sum_table <- data.frame(sum)[,c("descr",'value')]
+
       sum_table <- sum_table[sum_table$descr %in% sum_table_value, ]
       colnames(sum_table) <- c("description", "value")
+      
       reactable::reactable(
-        sum_table, compact = TRUE,
+        sum_table,
+        compact = TRUE,
         style = list(
           fontSize = "12px",
           verticalAlign = "center",
@@ -35,6 +39,14 @@ summary_tbl_server <- function(id, xpdb) {
         ),
         theme = reactable_theme,
         columns = list(
+          description = reactable::colDef(
+            
+            style = function(value) {
+              color <- "#777777"
+              list(color = color)
+            }
+            
+          ),
           value  = reactable::colDef(
             
             style = function(value) {
@@ -51,7 +63,9 @@ summary_tbl_server <- function(id, xpdb) {
           )
         )
       )
+      
     })
+    
     
   })
 }

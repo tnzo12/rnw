@@ -6,9 +6,9 @@ terminal_ui <- function(id){
 }
 
 terminal_server <- function(id){
-  moduleServer(id, function(input, output, session) {
+  shiny::moduleServer(id, function(input, output, session) {
     
-    terminal_ref <- shiny::reactivePoll(2000, session, function () Sys.time(), function () {
+    terminal_ref <- shiny::reactivePoll(3000, session, function () Sys.time(), function () {
       name = NULL
       command = NULL
       buffer = NULL
@@ -17,7 +17,7 @@ terminal_server <- function(id){
       
       for(i in 1:length(num_ter)){
         
-        ter_message <- tail( rstudioapi::terminalBuffer(num_ter[i], stripAnsi = TRUE),10 )
+        ter_message <- tail( rstudioapi::terminalBuffer(num_ter[i], stripAnsi = TRUE),15 )
         
         name[i]<- rstudioapi::terminalContext(num_ter[i])$caption
         command[i] <- rstudioapi::terminalContext(num_ter[i])$title
@@ -32,13 +32,15 @@ terminal_server <- function(id){
         
       }
       df <- data.frame(name,command,buffer,state)
+      df <- dplyr::arrange(df, name)
       df
     })
     
+    
+    
     output$terminals <- reactable::renderReactable({
-      
-      
       df <- terminal_ref()
+      
       reactable::reactable(
         style = list(
           fontSize = "12px",
@@ -93,6 +95,8 @@ terminal_server <- function(id){
       )
       
     })
+    
+    return(terminal_ref)
     
   })
   

@@ -19,7 +19,7 @@ run_options_ui <- function(id){
       )
     ),
     shiny::textAreaInput(ns("cmd"), label="command input", resize="vertical", rows=5),
-    shiny::actionButton(ns("run"), "run selected model")
+    shiny::actionButton(ns("run"), label=HTML("&nbsp;run selected model"), icon=shiny::icon("desktop"))
     
     
   )

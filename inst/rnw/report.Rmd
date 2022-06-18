@@ -1,0 +1,81 @@
+---
+title: "run_report"
+output: html_document
+params:
+  mn: NA
+  s: NA
+  p_t: NA
+  p_e: NA
+  prm_dist: NA
+  prm_qq: NA
+  eta_dist: NA
+  eta_qq: NA
+  dv_pred: NA
+  dv_ipred: NA
+  iwres_pred: NA
+  cwres_idv: NA
+  phi_m: NA
+  coi_m: NA
+  cor_m: NA
+  cov_m: NA
+  vpc: NA
+  scat: NA
+  ind: NA
+---
+This document is generated from rnw
+
+
+Estimation status
+
+```{r}
+params$mn
+params$s
+```
+
+Parameter estimation result
+
+```{r, table_estimation, fig.show="hold", out.width="100%"}
+params$p_t
+params$p_e
+```
+
+Distribution, QQ plot for parameters
+
+```{r, figures_dist_qq, fig.show="hold", out.width="50%"}
+params$prm_dist
+params$prm_qq
+params$eta_dist
+params$eta_qq
+```
+
+Goodness of Fits
+
+```{r, figures_gof, fig.show="hold", out.width="100%"}
+params$dv_pred
+params$dv_ipred
+params$iwres_pred
+params$cwres_idv
+```
+
+Matrices
+```{r, figures_matrices, fig.show="hold", out.width="100%"}
+params$phi_m
+params$coi_m
+params$cor_m
+params$cov_m
+```
+
+VPC
+```{r, figures_vpc, fig.show="hold", out.width="100%"}
+params$vpc
+```
+
+Scatter Matrix
+```{r, figures_scatter, fig.show="hold", out.width="100%"}
+params$scat
+```
+
+Individual Plot
+```{r, figures_individual, fig.show="hold", out.width="100%"}
+params$ind
+```
