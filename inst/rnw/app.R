@@ -58,6 +58,7 @@ ui <- bs4Dash::dashboardPage(
       icon = shiny::icon("brush"), width = "300px",
       tooltip = shinyWidgets::tooltipOptions(title = "color options for plotting")
     )
+
   ),
   controlbar = bs4Dash::dashboardControlbar(
     skin = ifelse(rstudioapi::getThemeInfo()$dark, # read theme of rstudio
@@ -97,7 +98,7 @@ ui <- bs4Dash::dashboardPage(
         ),
         shiny::fluidRow(
           bs4Dash::sortable(
-            width = 4,
+            width = 6,
             bs4Dash::box(
               title = "directory",
               width=12,
@@ -119,7 +120,7 @@ ui <- bs4Dash::dashboardPage(
           ),
 
           bs4Dash::sortable(
-            width = 4,
+            width = 6,
             bs4Dash::tabBox(
               width=12,
               elevation = 2,
@@ -225,7 +226,7 @@ ui <- bs4Dash::dashboardPage(
 
 
           bs4Dash::sortable(
-            width = 4,
+            width = 6,
             bs4Dash::tabBox(
               width=12,
               elevation = 2,
@@ -713,23 +714,35 @@ server <- function(input, output, session) {
           style = function(value) {
             if (is.na(value)) {
               color <- "#CCCCCC"
+              background_color <- NULL
             } else if (value == "r") {
               color <- "#CC99FF"
+              background_color <- "rgba(204, 153, 255, 0.3)"
             } else if (value == "t") {
               color <- "#FF6666"
+              background_color <- "rgba(255, 102, 102, 0.3)"
             } else if (value == "sim") {
               color <- "#66CCCC"
+              background_color <- "rgba(102, 204, 204, 0.3)"
             } else if (value == "s") {
               color <- "#66CC99"
+              background_color <- "rgba(	102, 204, 153, 0.3)"
             }
-            list(color = color)
+            list(color = color, background = background_color)
           }
         ),
         b = reactable::colDef(
           minWidth = 10,
           align = "center",
           style = function(value) {
-            list(color = "#66CCCC")
+            if (is.na(value)) {
+              color <- "#CCCCCC"
+              background_color <- NULL
+            } else if (value == "b") {
+              color <- "#66CCCC"
+              background_color <- "rgba(102, 204, 204, 0.3)"
+            }
+            list(color = color, background = background_color)
           }
         ),
         c = reactable::colDef(
@@ -738,12 +751,15 @@ server <- function(input, output, session) {
           style = function(value) {
             if (is.na(value)) {
               color <- "#CCCCCC"
+              background_color <- NULL
             } else if (value == "c") {
               color <- "#FFCC00"
+              background_color <- "rgba(255, 204, 0, 0.3)"
             } else if (value == "m") {
               color <- "#CC9999"
+              background_color <- "rgba(204, 153, 153, 0.3)"
             }
-            list(color = color)
+            list(color = color, background = background_color)
           }
         )
       ),
